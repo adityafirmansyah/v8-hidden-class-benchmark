@@ -1,0 +1,13 @@
+{
+  "name": "v8-hidden-class-benchmark",
+  "version": "1.0.0",
+  "description": "Isolated-process benchmark for V8 hidden-class / shape-diversity claims. Each scenario runs in its own child process with its own call site, so inline caches cannot leak between measurements.",
+  "license": "MIT",
+  "type": "commonjs",
+  "scripts": {
+    "bench": "node bench_isolated.cjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

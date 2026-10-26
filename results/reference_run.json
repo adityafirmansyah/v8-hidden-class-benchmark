@@ -1,0 +1,92 @@
+{
+  "status": "CANONICAL — every number shown on screen in Part 4 must match this file",
+  "measuredAt": "2026-10-22T07:40:00.000Z",
+  "note": "Each scenario is measured in a SEPARATE OS process with its own dedicated call site. The ratios below are medians across 4 independent full runs of the harness. Earlier single-process measurements were discarded: inline-cache state leaked between scenarios and the same ratio drifted up to 3x on repeated runs (e.g. inverted order measured 2.28x, then 1.16x, then 1.14x). Any number not traceable to this file must not appear in content.",
+  "environment": {
+    "node": "v26.8.1",
+    "v8": "14.6.202.34-node.28",
+    "platform": "linux",
+    "arch": "x64",
+    "cpu": "Intel(R) Celeron(R) J4105 CPU @ 1.50GHz",
+    "cpuCount": 4
+  },
+  "method": {
+    "objectsPerArray": 200000,
+    "readsPerRun": 5000000,
+    "runsPerScenario": 9,
+    "warmupReads": 300000,
+    "statistic": "median",
+    "isolation": "one child process per scenario",
+    "reproducedAcrossFullRuns": 4,
+    "harness": "scripts/render/bench_isolated.cjs"
+  },
+  "ratiosVsBaseline": {
+    "inverted_order": 1.14,
+    "class_ctor": 1.0,
+    "json_roundtrip": 1.04,
+    "two_shapes": 1.11,
+    "poly_4": 1.27,
+    "mixed_realistic": 1.25,
+    "mega_16": 4.35,
+    "delete_light": 8.9,
+    "delete_heavy": 24.3
+  },
+  "stabilityAcrossRuns": {
+    "inverted_order": [1.15, 1.13, 1.14, 1.18],
+    "two_shapes": [1.11, 1.1, 1.12, 1.12],
+    "poly_4": [1.28, 1.27, 1.26, 1.29],
+    "mixed_realistic": [1.27, 1.23, 1.25, 1.25],
+    "mega_16": [4.35, 4.25, 4.33, 4.5],
+    "delete_light": [9.32, 8.26, 8.05, 9.97],
+    "delete_heavy": [23.85, 24.48, 24.91, 24.01]
+  },
+  "screenNumbers": {
+    "baselineOneShape": "67,900,000 ops/sec",
+    "invertedOrder": "1.14x slower",
+    "twoShapesOneCallSite": "1.11x slower",
+    "fourShapesOneCallSite": "1.27x slower",
+    "mixedRealisticPatterns": "1.25x slower",
+    "mega16Shapes": "4.35x slower",
+    "afterOneDelete": "8.9x slower",
+    "after16AddsAndDeletes": "24.3x slower",
+    "deleteHeavyOpsPerSec": "2,828,936 ops/sec"
+  },
+  "rawOpsPerSec": {
+    "oneShape": "67,912,573",
+    "invertedOrder": "57,632,438",
+    "twoShapesOneCallSite": "60,873,009",
+    "polyFour": "52,681,312",
+    "mixedRealistic": "54,232,197",
+    "megamorphic16": "15,095,925",
+    "deleteLight": "6,812,503",
+    "deleteHeavy": "2,828,936"
+  },
+  "quotedVirialClaims": {
+    "note": "Numbers that appear in content ONLY as the claim being fact-checked, never as our own measurement. Any other use is an error.",
+    "invertedKeyOrder10x": "10x",
+    "observedRangeFromBrokenMethod": "2.28x and 1.16x are real measurements from the DISCARDED single-process harness, cited only to explain why isolation matters."
+  },
+  "viralClaimVerdict": {
+    "claim": "Changing object key order makes property access roughly 10x slower",
+    "verdict": "NOT SUPPORTED",
+    "measured": "1.14x slower for inverted key order alone, with its own call site",
+    "alsoMeasured": "1.11x for two shapes sharing one call site",
+    "whatIsActuallyTrue": "The real order-of-magnitude cliff is dictionary mode from `delete`: 8.9x after a single delete and 24.3x after add/delete churn. Megamorphic spread at 16 shapes costs 4.35x."
+  },
+  "findings": [
+    "V8 14.6 is far more tolerant of shape diversity than the viral posts assume. Two shapes at one call site cost only 1.11x; four cost 1.27x.",
+    "Spreading, Object.assign, destructuring, class constructors and JSON round-trips are all within noise of the baseline when measured in isolation.",
+    "The megamorphic cliff is real but sits much higher than claimed: at 16 shapes the penalty jumps to 4.35x.",
+    "`delete` is the real trap. One delete already costs 8.9x; a 16-property add/delete churn costs 24.3x.",
+    "Corrected narrative for content: stop repeating the key-order claim. Teach that the cliff comes from `delete` and from exceeding ~16 shapes per call site."
+  ],
+  "superseded": {
+    "freelancedNumbersNeverAppearOnScreenAgain": [
+      "1,850,000 ops/sec",
+      "182,000 ops/sec",
+      "10.1x slower",
+      "10X SLOWER from key order"
+    ],
+    "reason": "These were not measured. They were invented to match the viral claim, and the claim itself does not reproduce on this machine."
+  }
+}
